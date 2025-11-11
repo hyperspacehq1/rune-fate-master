@@ -1,0 +1,92 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+body {
+  background-color: #000000;
+  overflow-x: hidden;
+}
+
+html {
+  background-color: #000000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes glow-green {
+  0% { box-shadow: 0 0 0px rgba(34,197,94,0); }
+  50% { box-shadow: 0 0 20px 6px rgba(34,197,94,0.6); }
+  100% { box-shadow: 0 0 0px rgba(34,197,94,0); }
+}
+
+@keyframes glow-blue {
+  0% { box-shadow: 0 0 0px rgba(32,53,150,0); }
+  50% { box-shadow: 0 0 20px 6px rgba(32,53,150,0.6); }
+  100% { box-shadow: 0 0 0px rgba(32,53,150,0); }
+}
+
+.glow-green {
+  animation: glow-green 1.2s ease-in-out;
+}
+
+.glow-blue {
+  animation: glow-blue 1.2s ease-in-out;
+}
+
+button {
+  will-change: transform, box-shadow, filter;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+@keyframes fadeInIos {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeInIos {
+  animation: fadeInIos 1s ease-out forwards;
+}
