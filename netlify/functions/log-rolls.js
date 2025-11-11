@@ -4,22 +4,31 @@ export async function handler(event) {
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const rolls = body.characters || [];
-    const player = 'Party';
-    const message = body.session_id || 'Session log';
+    const { session_id, roll_type, characters } = body;
 
-    // 1️⃣ Insert into Neon
+    if (!characters || !Array.isArray(characters)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing or invalid "characters" array' })
+      };
+    }
+
+    const player = characters.length > 1 ? 'Party' : (characters[0]?.name || 'Unknown');
+    const rolls = JSON.stringify(characters);
+    const message = session_id || 'Session log';
+
+    // ✅ Updated insert query
     const insert = await pool.query(
-      `INSERT INTO roll_logs (player, timestamp, rolls, message)
-       VALUES ($1, NOW(), $2, $3)
+      `INSERT INTO roll_logs (player, timestamp, rolls, message, session_id, roll_type)
+       VALUES ($1, NOW(), $2, $3, $4, $5)
        RETURNING *`,
-      [player, JSON.stringify(rolls), message]
+      [player, rolls, message, session_id || null, roll_type || null]
     );
 
     const record = insert.rows[0];
 
-    // 2️⃣ Send webhook to rune-fate-log app
-    const webhookUrl = process.env.RUNE_FATE_LOG_WEBHOOK_URL; // set this in Netlify env vars
+    // Optional: Send to your rune-fate-log webhook
+    const webhookUrl = process.env.RUNE_FATE_LOG_WEBHOOK_URL;
     if (webhookUrl) {
       await fetch(webhookUrl, {
         method: 'POST',
