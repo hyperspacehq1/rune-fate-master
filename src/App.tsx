@@ -3,35 +3,28 @@ import Header from "./components/Header";
 import SettingsModal from "./components/SettingsModal";
 import MainCharacterSection from "./components/MainCharacterSection";
 import SecondaryCharacterCard from "./components/SecondaryCharacterCard";
-import Modal from "./components/Modal"; // if used for other UI elements
 
 const App: React.FC = () => {
-  // ---------------------------------------------------------
-  // CHARACTER DATA LOADED FROM THE DATABASE
-  // ---------------------------------------------------------
+  // CHARACTER LOADING
   const [characterData, setCharacterData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Settings modal state
+  // SETTINGS MODAL
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Logo animation state
+  // LOGO ANIMATION
   const [logoKey, setLogoKey] = useState("logo-" + Date.now());
   const [logoAnimation, setLogoAnimation] = useState(true);
   const logoFallback = "/images/runefate-logo.png";
 
-  // ---------------------------------------------------------
-  // DEVICE CHECK (SOME VIDEO ASSETS DISABLED ON iOS)
-  // ---------------------------------------------------------
+  // iOS CHECK
   const [isIOS, setIsIOS] = useState(false);
   useEffect(() => {
     const ua = window.navigator.userAgent.toLowerCase();
     setIsIOS(/iphone|ipad|ipod/.test(ua));
   }, []);
 
-  // ---------------------------------------------------------
-  // LOAD CHARACTER PROFILE FROM API
-  // ---------------------------------------------------------
+  // LOAD CHARACTER FROM API
   const loadCharacterData = async () => {
     try {
       setLoading(true);
@@ -49,20 +42,13 @@ const App: React.FC = () => {
     loadCharacterData();
   }, []);
 
-  // ---------------------------------------------------------
-  // RESET FUNCTION — YOU CAN EXPAND THIS IF NEEDED
-  // ---------------------------------------------------------
+  // RESET HANDLER
   const handleReset = () => {
-    // refresh logo animation
     setLogoKey("logo-" + Date.now());
-
-    // reload DB character
     loadCharacterData();
   };
 
-  // ---------------------------------------------------------
-  // RENDER LOADING STATE
-  // ---------------------------------------------------------
+  // LOADING SCREEN
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-black text-emerald-400 text-xl">
@@ -71,9 +57,7 @@ const App: React.FC = () => {
     );
   }
 
-  // ---------------------------------------------------------
-  // MAIN APP RENDER
-  // ---------------------------------------------------------
+  // MAIN APP
   return (
     <div className="min-h-screen bg-black text-white">
 
@@ -87,13 +71,13 @@ const App: React.FC = () => {
         logoFallback={logoFallback}
       />
 
-      {/* MAIN CHARACTER SECTION */}
+      {/* MAIN CHARACTER */}
       <MainCharacterSection
         name={characterData?.name}
         image={characterData?.image}
       />
 
-      {/* SECONDARY COMPANION CARD */}
+      {/* COMPANION CARD */}
       <SecondaryCharacterCard
         companionName={characterData?.companion_name}
         activeImage={characterData?.companion_image_active}
@@ -102,3 +86,15 @@ const App: React.FC = () => {
 
       {/* SETTINGS MODAL */}
       {isSettingsOpen && characterData && (
+        <SettingsModal
+          onClose={() => setIsSettingsOpen(false)}
+          current={characterData}
+          onSaved={loadCharacterData}
+        />
+      )}
+
+    </div>
+  );
+};
+
+export default App;
