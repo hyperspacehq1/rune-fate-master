@@ -1,126 +1,125 @@
-import { useState, useEffect } from "react";
-import { showError } from "../utils/notifications";
-import { FirstTimeSetup } from "./settings/FirstTimeSetup";
-import { SettingsPanel } from "./settings/SettingsPanel";
+import React, { useState } from "react";
 
-interface SettingsModalProps {
-  isOpen: boolean;
+interface Props {
   onClose: () => void;
-  userName: string;
-  setUserName: (name: string) => void;
-  userAvatar: string;
-  setUserAvatar: (avatar: string) => void;
-  onUploadBackground: (file: File) => void;
-  isDarkMode: boolean;
-  setIsDarkMode: (value: boolean) => void;
-  showAllCharactersPanel: boolean;
-  setShowAllCharactersPanel: (value: boolean) => void;
-  onOpenAllCharacters: () => void;
+  current: any; // character data
+  onSaved: () => void; // reloads character from API
 }
 
-export function SettingsModal({
-  isOpen,
-  onClose,
-  userName,
-  setUserName,
-  userAvatar,
-  setUserAvatar,
-  onUploadBackground,
-  isDarkMode,
-  setIsDarkMode,
-  onOpenAllCharacters,
-}: SettingsModalProps) {
-  const [localUserName, setLocalUserName] = useState(userName);
-  const [localUserAvatar, setLocalUserAvatar] = useState(userAvatar);
-  const [isEditingName, setIsEditingName] = useState(false);
+const SettingsModal: React.FC<Props> = ({ onClose, current, onSaved }) => {
+  const [name, setName] = useState(current?.name || "");
+  const [companionName, setCompanionName] = useState(current?.companion_name || "");
 
-  useEffect(() => {
-    if (isOpen) {
-      setLocalUserName(userName);
-      setLocalUserAvatar(userAvatar);
-      setIsEditingName(false);
-    }
-  }, [isOpen, userName, userAvatar]);
+  const [charFile, setCharFile] = useState<File | null>(null);
+  const [compActiveFile, setCompActiveFile] = useState<File | null>(null);
+  const [compInactiveFile, setCompInactiveFile] = useState<File | null>(null);
 
-  if (!isOpen) return null;
+  const uploadFile = async (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
 
-  const isFirstTimeSetup = !userName;
+    const res = await fetch("/api/upload-character-image", {
+      method: "POST",
+      body: form
+    });
 
-  const handleSaveFirstTime = () => {
-    if (localUserName.trim().length === 0) {
-      showError("Please enter your name");
-      return;
-    }
-
-    localStorage.setItem("userName", localUserName.trim());
-    if (localUserAvatar) {
-      try {
-        localStorage.setItem("userAvatar", localUserAvatar);
-      } catch (error) {
-        console.error("Failed to save avatar:", error);
-        showError("Failed to save avatar. The image might be too large.");
-      }
-    }
-
-    setUserName(localUserName.trim());
-    setUserAvatar(localUserAvatar);
-
-    onClose();
+    const json = await res.json();
+    return json.url;
   };
 
-  const handleSaveChanges = () => {
-    if (localUserName.trim().length > 0) {
-      localStorage.setItem("userName", localUserName.trim());
-      setUserName(localUserName.trim());
-    }
+  const save = async () => {
+    let payload: any = {
+      name,
+      companion_name: companionName
+    };
 
-    if (localUserAvatar !== userAvatar) {
-      try {
-        localStorage.setItem("userAvatar", localUserAvatar);
-        setUserAvatar(localUserAvatar);
-      } catch (error) {
-        console.error("Failed to save avatar:", error);
-        showError("Failed to save avatar. The image might be too large.");
-      }
-    }
+    if (charFile) payload.image = await uploadFile(charFile);
+    if (compActiveFile) payload.companion_image_active = await uploadFile(compActiveFile);
+    if (compInactiveFile) payload.companion_image_inactive = await uploadFile(compInactiveFile);
 
-    setIsEditingName(false);
+    await fetch("/api/update-character", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+
+    onSaved();
     onClose();
   };
-
-  if (isFirstTimeSetup) {
-    return (
-      <>
-        <div className="fixed inset-0 z-30" onClick={onClose} />
-        <FirstTimeSetup
-          localUserName={localUserName}
-          setLocalUserName={setLocalUserName}
-          localUserAvatar={localUserAvatar}
-          setLocalUserAvatar={setLocalUserAvatar}
-          onSave={handleSaveFirstTime}
-          onClose={onClose}
-        />
-      </>
-    );
-  }
 
   return (
-    <>
-      <div className="fixed inset-0 z-30" onClick={onClose} />
-      <SettingsPanel
-        userName={userName}
-        localUserName={localUserName}
-        setLocalUserName={setLocalUserName}
-        localUserAvatar={localUserAvatar}
-        setLocalUserAvatar={setLocalUserAvatar}
-        isEditingName={isEditingName}
-        setIsEditingName={setIsEditingName}
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        onUploadBackground={onUploadBackground}
-        onOpenAllCharacters={onOpenAllCharacters}
-        onSaveChanges={handleSaveChanges}
-      />
-    </>
+    <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 animate-fadeIn">
+      <div className="bg-zinc-900/90 p-6 rounded-xl w-full max-w-lg border border-zinc-700 shadow-lg animate-fadeInIos">
+
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Character Settings
+        </h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm text-zinc-300">Character Name</label>
+            <input
+              className="w-full bg-black/50 border border-zinc-700 rounded-md px-3 py-2 text-white"
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300">Companion Name</label>
+            <input
+              className="w-full bg-black/50 border border-zinc-700 rounded-md px-3 py-2 text-white"
+              value={companionName}
+              onChange={e => setCompanionName(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300">Character Image</label>
+            <input
+              type="file"
+              className="w-full text-white"
+              onChange={e => setCharFile(e.target.files?.[0] || null)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300">Companion Active Image</label>
+            <input
+              type="file"
+              className="w-full text-white"
+              onChange={e => setCompActiveFile(e.target.files?.[0] || null)}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-zinc-300">Companion Inactive Image</label>
+            <input
+              type="file"
+              className="w-full text-white"
+              onChange={e => setCompInactiveFile(e.target.files?.[0] || null)}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-6 gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-md bg-zinc-700 hover:bg-zinc-600 text-white"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={save}
+            className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white"
+          >
+            Save
+          </button>
+        </div>
+
+      </div>
+    </div>
   );
-}
+};
+
+export default SettingsModal;
