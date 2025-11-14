@@ -25,14 +25,15 @@ const Header: React.FC<HeaderProps> = ({
       {/* LEFT: LOGO / TITLE */}
       <div className="flex items-center space-x-3">
         {!isIOS && logoAnimation ? (
-          <img
-            key={logoKey}
-            src="/images/logo.mp4"
-            autoPlay
-            loop
-            muted
-            className="h-10 w-10 rounded-lg"
-          />
+          <video
+  key={logoKey}
+  src="/images/logo.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  className="h-10 w-10 rounded-lg"
+></video>
         ) : (
           <img
             src={logoFallback}

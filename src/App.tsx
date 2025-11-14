@@ -21,10 +21,10 @@ import {
 } from "./constants";
 import { MainCharacterSection } from "./components/MainCharacterSection";
 import { SecondaryCharacterCard } from "./components/SecondaryCharacterCard";
-import { SettingsModal } from "./components/SettingsModal";
+import SettingsModal from "./components/SettingsModal";
 import { AllCharactersPanel } from "./components/AllCharactersPanel";
 import { AttackResultCard } from "./components/AttackResultCard";
-import { Header } from "./components/Header";
+import Header from "./components/Header";
 import backgroundImage from "./assets/background.jpg";
 
 export default function App() {
