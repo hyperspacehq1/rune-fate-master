@@ -14,7 +14,7 @@ const App: React.FC = () => {
 
   // LOGO ANIMATION
   const [logoKey, setLogoKey] = useState("logo-" + Date.now());
-  const [logoAnimation, setLogoAnimation] = useState(true);
+const logoAnimation = true;
   const logoFallback = "/images/runefate-logo.png";
 
   // iOS CHECK

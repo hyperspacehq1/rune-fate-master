@@ -61,3 +61,4 @@ export function SecondaryCharacterCard({
     </div>
   );
 }
+export default SecondaryCharacterCard;

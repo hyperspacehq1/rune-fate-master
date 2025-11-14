@@ -111,3 +111,4 @@ export function MainCharacterSection({
     </div>
   );
 }
+export default MainCharacterSection;
