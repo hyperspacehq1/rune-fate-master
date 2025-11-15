@@ -121,5 +121,5 @@ const SettingsModal: React.FC<Props> = ({ onClose, current, onSaved }) => {
     </div>
   );
 };
-
+function SettingsModal({
 export default SettingsModal;
